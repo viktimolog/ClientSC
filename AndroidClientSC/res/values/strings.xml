@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AndroidClientSC</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="idrepairtitle">Введите номер ремонта</string>
+    <string name="OK">OK</string>
+    <string name="IDnotfound">Sorry, your number of repair was not finded!</string>
+
+</resources>
