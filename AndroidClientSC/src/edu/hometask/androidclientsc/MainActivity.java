@@ -3,13 +3,15 @@ package edu.hometask.androidclientsc;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -24,6 +26,9 @@ public class MainActivity extends Activity
 	private String IPServer;
 	private Order order;
 	private int number;
+	private ArrayList<String> arrListRes;
+	private EditText etIdRepair;
+	private int firstStart=0;
 	
 	static Handler hMain;
 	
@@ -47,6 +52,7 @@ public class MainActivity extends Activity
 					if(ma.isNumeric(msg.obj.toString()))
 					{
 						ma.setNumber(Integer.parseInt(msg.obj.toString()));
+						ma.setFirstStart(ma.getFirstStart()+1);
 					}
 					else
 					{
@@ -80,12 +86,22 @@ public class MainActivity extends Activity
 	    }
 	}
 	
-    public void getResult()
+    public void setFirstStart(int b)
+    {
+    	firstStart = b;
+	}
+    
+    public int getFirstStart()
+    {
+    	return firstStart;
+	}
+
+	public void getResult()
     {
         if(order==null)
         {
         	order = new Order();
-//        	order.setNumberTitle(R.string.IDnotfound);
+//        	order.setNumberTitle(R.string.IDnotfound);////???
         	order.setNumberTitle("Ваш ремонт не был найден");
         }
         
@@ -133,9 +149,6 @@ public class MainActivity extends Activity
 		this.order = order;
 	}
 
-	private ArrayList<String> arrListRes;
-	private EditText etIdRepair;
-	
 	@Override
 	protected void onDestroy()
 	{
@@ -149,34 +162,77 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        
         hMain = new MyHandler(this);
         
        	IPServer = "192.168.1.104";
 //    	IPServer = "10.1.100.78";
        	
-        View viewName = View.inflate(this, R.layout.idrepair, null);
-	    AlertDialog.Builder alertName = new AlertDialog.Builder(MainActivity.this);
-	    alertName.setView(viewName);
-	    alertName.setTitle(R.string.idrepairtitle);
-//	    alertName.setMessage(R.string.personName);
-	    alertName.setCancelable(false);
-	    
-	    etIdRepair = (EditText) viewName.findViewById(R.id.dialog1EditText);
-	    
-	    alertName.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener()
-        {
-			@Override
-			public void onClick(DialogInterface dialog, int which)
-			{
-				MainActivity.hMain.sendMessage(
-						MainActivity.hMain.obtainMessage(
-								MainActivity.HANDLER_KEYIDREPAIR, etIdRepair.getText().toString()));
-				dialog.cancel();
-			}
-		});
-	    
-	    AlertDialog ad1 = alertName.create();
-	    
-	    ad1.show();
+	    if(firstStart==0)
+	    {
+	        View viewName = View.inflate(this, R.layout.idrepair, null);
+		    AlertDialog.Builder alertName = new AlertDialog.Builder(MainActivity.this);
+		    alertName.setView(viewName);
+		    alertName.setTitle(R.string.idrepairtitle);
+//		    alertName.setMessage(R.string.personName);
+		    alertName.setCancelable(false);
+		    
+		    etIdRepair = (EditText) viewName.findViewById(R.id.dialog1EditText);
+		    alertName.setPositiveButton(R.string.OK, new DialogInterface.OnClickListener()
+	        {
+				@Override
+				public void onClick(DialogInterface dialog, int which)
+				{
+					MainActivity.hMain.sendMessage(
+							MainActivity.hMain.obtainMessage(
+									MainActivity.HANDLER_KEYIDREPAIR, etIdRepair.getText().toString()));
+					dialog.cancel();
+				}
+			});
+		    
+		    AlertDialog ad1 = alertName.create();
+		    
+		    ad1.show();
+	    }
+
     }
+    protected void onPause() 
+    {
+        super.onPause();
+        ++firstStart;
+      }
+     
+      protected void onRestart() 
+      {
+        super.onRestart();
+      }
+     
+      protected void onRestoreInstanceState(Bundle savedInstanceState)
+      {
+        super.onRestoreInstanceState(savedInstanceState);
+        firstStart = savedInstanceState.getInt("firstStart");
+        Log.d("Shalom", "firstStart from getBoolean = "+firstStart);
+      }
+     
+      protected void onResume() 
+      {
+        super.onResume();
+      }
+     
+      protected void onSaveInstanceState(Bundle outState) 
+      {
+        super.onSaveInstanceState(outState);
+        Log.d("Shalom", "firstStart to outState = "+firstStart);
+        outState.putInt("firstStart", firstStart);
+      }
+     
+      protected void onStart() 
+      {
+        super.onStart();
+      }
+     
+      protected void onStop() 
+      {
+        super.onStop();
+      }
 }
